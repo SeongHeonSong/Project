@@ -1,0 +1,34 @@
+from calendar import c
+import pennylane as qml
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+dev = qml.device('default.qubit', wires=1)
+@qml.qnode(dev)
+def circuit(phi, theta, omega):
+    qml.Rot(phi, theta, omega, wires=0)
+    return qml.expval(qml.PauliZ(wires=0))
+
+x_angles = np.linspace(0, 1, 200)
+y_angles = np.linspace(0, 2, 400)
+
+Z=[]
+for x in x_angles:
+    temp=[]
+    for y in y_angles:
+        temp.append(circuit(0,np.pi*x,np.pi*y))
+    Z.append(temp)
+Z=np.array(Z)
+X=np.linspace(0,1,len(Z.T))
+Y=np.linspace(0,2,len(Z))
+
+X, Y = np.meshgrid(X, Y)
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+ax.plot_surface(X, Y, Z, cmap=cm.Blues)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('ENERGY')
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 2)
+plt.show()
